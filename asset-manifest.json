@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/supatest/static/css/main.b6c75eb1.css",
+    "main.js": "/supatest/static/js/main.5d7c8d06.js",
+    "static/js/952.98b6f391.chunk.js": "/supatest/static/js/952.98b6f391.chunk.js",
+    "index.html": "/supatest/index.html",
+    "main.b6c75eb1.css.map": "/supatest/static/css/main.b6c75eb1.css.map",
+    "main.5d7c8d06.js.map": "/supatest/static/js/main.5d7c8d06.js.map",
+    "952.98b6f391.chunk.js.map": "/supatest/static/js/952.98b6f391.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b6c75eb1.css",
+    "static/js/main.5d7c8d06.js"
+  ]
+}
