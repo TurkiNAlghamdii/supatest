@@ -63,6 +63,12 @@ nav button {
   margin-left: 10px;
   transition: background-color 0.3s ease;
 }
+.user-email {
+  margin-left: auto;
+  padding: 10px;
+  color: #ffffff;
+  font-size: 14px;
+}
 
 nav button:hover {
   background-color: #21a1f1;
