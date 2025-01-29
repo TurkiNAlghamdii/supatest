@@ -38,7 +38,7 @@ function App() {
         <>
           <header>
             <div className="header-left">
-              <h1>Tobi</h1>
+              <h1>TOBI'S HIDEOUT</h1>
               <nav>
                 <Link to="/">Home</Link>
                 <Link to="/todo">Todo</Link>

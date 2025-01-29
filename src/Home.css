@@ -1,0 +1,60 @@
+.App-content {
+    text-align: center;
+    padding: 50px;
+  }
+  
+  .center-image {
+    width: 150px; /* Adjust the size as needed */
+    height: auto;
+    margin-bottom: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .cool-animation {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9) rotate(0deg);
+    animation: fadeInUp 1s ease-out forwards, colorChange 3s ease-in-out infinite, rotateScale 5s ease-in-out infinite;
+  }
+  
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  @keyframes colorChange {
+    0% {
+      color: #61dafb;
+    }
+    25% {
+      color: #21a1f1;
+    }
+    50% {
+      color: #61dafb;
+    }
+    75% {
+      color: #21a1f1;
+    }
+    100% {
+      color: #61dafb;
+    }
+  }
+  
+  @keyframes rotateScale {
+    0% {
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      transform: scale(1.1) rotate(10deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+  }

@@ -21,12 +21,20 @@ header {
   top: 0;
   left: 0;
   z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+}
+.header-left{
+  display: flex;
+  width: 600px;
 }
 
 header h1 {
   font-size: 24px;
   color: #61dafb;
   margin: 0;
+  text-align: left;
+  margin-right: 50px;
 }
 
 nav {
@@ -53,6 +61,9 @@ footer {
   bottom: 0;
   left: 0;
 }
+.user-info{
+  margin-right: 40px;
+}
 nav button {
   background-color: #61dafb;
   color: #121212;
@@ -61,7 +72,7 @@ nav button {
   padding: 10px 20px;
   cursor: pointer;
   margin-left: 10px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.1s ease;
 }
 .user-email {
   margin-left: auto;

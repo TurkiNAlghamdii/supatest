@@ -1,4 +1,3 @@
-// filepath: /home/turki/Desktop/test/supatest/src/Todo.jsx
 import React, { useState, useEffect } from 'react';
 import supabase from './supabase-client';
 import './Todo.css';
@@ -6,115 +5,106 @@ import './Todo.css';
 function Todo() {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
-  const [editingTodo, setEditingTodo] = useState(null);
-  const [editingText, setEditingText] = useState('');
 
   useEffect(() => {
+    const fetchTodos = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase
+          .from('TodoList')
+          .select('*')
+          .eq('user_id', user.id);
+        if (error) {
+          console.error('Error fetching todos: ' + error.message);
+        } else {
+          setTodos(data);
+        }
+      }
+    };
+
     fetchTodos();
   }, []);
 
-  const fetchTodos = async () => {
-    const { data, error } = await supabase
-      .from('TodoList')
-      .select('*');
-    if (error) console.error('Error fetching todos:', error);
-    else setTodos(data);
-  };
-
-  const addTodo = async () => {
-    const { data, error } = await supabase
-      .from('TodoList')
-      .insert([{ name: newTodo, isCompleted: false }]);
-    if (error) {
-      console.error('Error adding todo:', error);
-    } else {
-      if (data) {
-        setTodos([...todos, ...data]); // Optimistically update the state
+  const handleAddTodo = async (event) => {
+    event.preventDefault();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const newTodoItem = { user_id: user.id, name: newTodo, isCompleted: false };
+      setTodos([...todos, { ...newTodoItem, id: Date.now() }]); // Temporarily add the new todo with a unique id
+      setNewTodo('');
+      const { error } = await supabase
+        .from('TodoList')
+        .insert([newTodoItem]);
+      if (error) {
+        console.error('Error adding todo: ' + error.message);
       } else {
-        console.error('No data returned from insert operation');
+        const { data, error: fetchError } = await supabase
+          .from('TodoList')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('id', { ascending: false })
+          .limit(1);
+        if (fetchError) {
+          console.error('Error fetching new todo: ' + fetchError.message);
+        } else {
+          setTodos(todos => todos.map(todo => todo.id === newTodoItem.id ? data[0] : todo));
+        }
       }
-      setNewTodo(''); // Clear the input field
-      fetchTodos(); // Fetch the updated list of todos
     }
   };
 
-  const toggleTodoCompletion = async (id, isCompleted) => {
-    const { error } = await supabase
-      .from('TodoList')
-      .update({ isCompleted: !isCompleted })
-      .eq('id', id);
-    if (error) {
-      console.error('Error updating todo:', error);
-    } else {
-      fetchTodos(); // Fetch the updated list of todos
+  const handleDeleteTodo = async (id) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { error } = await supabase
+        .from('TodoList')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+      if (error) {
+        console.error('Error deleting todo: ' + error.message);
+      } else {
+        setTodos(todos.filter(todo => todo.id !== id));
+      }
     }
   };
 
-  const updateTodo = async (id, name) => {
-    const { error } = await supabase
-      .from('TodoList')
-      .update({ name })
-      .eq('id', id);
-    if (error) {
-      console.error('Error updating todo:', error);
-    } else {
-      setEditingTodo(null);
-      fetchTodos(); // Fetch the updated list of todos
-    }
-  };
-
-  const deleteTodo = async (id) => {
-    const { error } = await supabase
-      .from('TodoList')
-      .delete()
-      .eq('id', id);
-    if (error) {
-      console.error('Error deleting todo:', error);
-    } else {
-      fetchTodos(); // Fetch the updated list of todos
+  const handleToggleComplete = async (id, isCompleted) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { error } = await supabase
+        .from('TodoList')
+        .update({ isCompleted: !isCompleted })
+        .eq('id', id)
+        .eq('user_id', user.id);
+      if (error) {
+        console.error('Error updating todo: ' + error.message);
+      } else {
+        setTodos(todos.map(todo => todo.id === id ? { ...todo, isCompleted: !isCompleted } : todo));
+      }
     }
   };
 
   return (
     <div className="todo-container">
-      <input
-        type="text"
-        value={newTodo}
-        onChange={(e) => setNewTodo(e.target.value)}
-        placeholder="Add a new todo"
-      />
-      <button onClick={addTodo}>Add Todo</button>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>
-            <input
-              type="checkbox"
-              checked={todo.isCompleted}
-              onChange={() => toggleTodoCompletion(todo.id, todo.isCompleted)}
-            />
-            {editingTodo === todo.id ? (
-              <input
-                type="text"
-                value={editingText}
-                onChange={(e) => setEditingText(e.target.value)}
-              />
-            ) : (
-              <span>{todo.name}</span>
-            )}
-            {editingTodo === todo.id ? (
-              <>
-                <button className="save" onClick={() => updateTodo(todo.id, editingText)}>Save</button>
-                <button className="cancel" onClick={() => setEditingTodo(null)}>Cancel</button>
-              </>
-            ) : (
-              <>
-                <button className="edit" onClick={() => {
-                  setEditingTodo(todo.id);
-                  setEditingText(todo.name);
-                }}>Edit</button>
-                <button className="delete" onClick={() => deleteTodo(todo.id)}>Delete</button>
-              </>
-            )}
+      <h2>My To-Do List</h2>
+      <form onSubmit={handleAddTodo} className="todo-form">
+        <input
+          type="text"
+          placeholder="New To-Do"
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+          className="todo-input"
+        />
+        <button type="submit" className="todo-add-button">Add</button>
+      </form>
+      <ul className="todo-list">
+        {todos.map(todo => (
+          <li key={todo.id} className={`todo-item ${todo.isCompleted ? 'completed' : ''}`}>
+            <span onClick={() => handleToggleComplete(todo.id, todo.isCompleted)} className="todo-name">
+              {todo.name}
+            </span>
+            <button onClick={() => handleDeleteTodo(todo.id)} className="todo-delete-button">Delete</button>
           </li>
         ))}
       </ul>
