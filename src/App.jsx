@@ -5,6 +5,7 @@ import Home from './Home';
 import Todo from './Todo';
 import Auth from './Auth';
 import VerifyEmail from './VerifyEmail';
+import Profile from './Profile';
 import './App.css';
 
 function App() {
@@ -44,7 +45,7 @@ function App() {
               </nav>
             </div>
             <div className="user-info">
-              <span className="user-email">{session.user.email}</span>
+              <Link to="/profile" className="user-email">{session.user.email}</Link>
               <button onClick={handleLogout}>Logout</button>
             </div>
           </header>
@@ -53,6 +54,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/todo" element={<Todo />} />
               <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </main>
