@@ -3,11 +3,13 @@ import supabase from './supabase-client';
 import './Profile.css';
 
 function Profile() {
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [profilePictureUrl, setProfilePictureUrl] = useState('');
+  const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     const fetchProfilePicture = async () => {
@@ -25,20 +27,48 @@ function Profile() {
       }
     };
 
+    const fetchProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', user.id)
+          .single();
+        if (error) {
+          setError(error.message);
+        } else {
+          setUsername(data.username);
+        }
+        setLoading(false);
+      }
+    };
+
     fetchProfilePicture();
+    fetchProfile();
   }, []);
+
+  const updateProfile = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase
+      .from('profiles')
+      .update({ username })
+      .eq('id', user.id);
+    if (error) {
+      setError(error.message);
+    } else {
+      setSuccess('Profile updated successfully');
+    }
+    setLoading(false);
+  };
 
   const handleChangePassword = async (event) => {
     event.preventDefault();
     setError('');
     setSuccess('');
-
-    const { error } = await supabase.auth.updateUser({ password });
-    if (error) {
-      setError(error.message);
-    } else {
-      setSuccess('Password updated successfully!');
-    }
+    // Add your password change logic here
   };
 
   const handleProfilePictureUpload = async (event) => {
@@ -46,23 +76,22 @@ function Profile() {
     if (!file) return;
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await supabase.storage
-        .from('profile-pictures')
-        .upload(`public/${user.id}.png`, file, {
-          cacheControl: '3600',
-          upsert: true,
-        });
+    const filePath = `public/${user.id}.png`;
 
-      if (error) {
-        setError('Error uploading profile picture: ' + error.message);
-      } else {
-        setSuccess('Profile picture updated successfully!');
-        const url = URL.createObjectURL(file);
-        setProfilePictureUrl(url);
-      }
+    const { error } = await supabase.storage
+      .from('profile-pictures')
+      .upload(filePath, file, { upsert: true });
+
+    if (error) {
+      setError('Error uploading profile picture: ' + error.message);
+    } else {
+      const url = URL.createObjectURL(file);
+      setProfilePictureUrl(url);
+      setSuccess('Profile picture updated successfully');
     }
   };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="profile-container">
@@ -76,6 +105,19 @@ function Profile() {
       </div>
       {error && <p className="error">{error}</p>}
       {success && <p className="success">{success}</p>}
+      <form onSubmit={updateProfile}>
+        <div className="input-group">
+          <label htmlFor="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <button type="submit" className="profile-button">Update Username</button>
+        </div>
+      </form>
       <form onSubmit={handleChangePassword}>
         <div className="password-place">
           <label>Change Your Password</label>
@@ -91,11 +133,11 @@ function Profile() {
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? "Hide" : "Show"}
+                {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
+            <button type="submit" className="profile-button">Change Password</button>
         </div>
-        <button type="submit">Change Password</button>
       </form>
     </div>
   );

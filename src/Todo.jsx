@@ -29,7 +29,7 @@ function Todo() {
     event.preventDefault();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const newTodoItem = { user_id: user.id, name: newTodo, isCompleted: false };
+      const newTodoItem = { user_id: user.id, name: newTodo, isCompleted: false, created_at: new Date() };
       setTodos([...todos, { ...newTodoItem, id: Date.now() }]); // Temporarily add the new todo with a unique id
       setNewTodo('');
       const { error } = await supabase
@@ -103,6 +103,9 @@ function Todo() {
           <li key={todo.id} className={`todo-item ${todo.isCompleted ? 'completed' : ''}`}>
             <span onClick={() => handleToggleComplete(todo.id, todo.isCompleted)} className="todo-name">
               {todo.name}
+            </span>
+            <span className="todo-date">
+              {new Date(todo.created_at).toLocaleDateString()}
             </span>
             <button onClick={() => handleDeleteTodo(todo.id)} className="todo-delete-button">Delete</button>
           </li>

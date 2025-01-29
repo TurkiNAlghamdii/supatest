@@ -18,9 +18,8 @@ h2 {
 .todo-form {
   display: flex;
   justify-content: center;
-  align-items: baseline;
   margin-bottom: 20px;
-  border-bottom: 1px solid #3c3c3c;
+  align-items: baseline;
 }
 
 .todo-input {
@@ -40,7 +39,7 @@ h2 {
   border-radius: 4px;
   padding: 10px 20px;
   cursor: pointer;
-  transition: background-color 0.1s ease;
+  transition: background-color 0.3s ease;
 }
 
 .todo-add-button:hover {
@@ -60,7 +59,7 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background-color 0.1s ease;
+  transition: background-color 0.3s ease;
 }
 
 .todo-item.completed {
@@ -73,6 +72,14 @@ h2 {
   cursor: pointer;
   flex: 1;
   text-align: left;
+}
+
+.todo-date {
+  margin-left: 10px;
+  color: #888;
+  font-size: 0.9em;
+  margin-right: 30px;
+  margin-left: -40px;
 }
 
 .todo-delete-button {

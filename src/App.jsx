@@ -6,21 +6,50 @@ import Todo from './Todo';
 import Auth from './Auth';
 import VerifyEmail from './VerifyEmail';
 import Profile from './Profile';
+import SocialMedia from './SocialMedia';
 import './App.css';
 
 function App() {
   const [session, setSession] = useState(null);
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
+      if (session) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', session.user.id)
+          .single();
+        if (error) {
+          console.error('Error fetching username:', error.message);
+        } else {
+          setUsername(data.username);
+        }
+      }
     };
 
     getSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session) {
+        const fetchUsername = async () => {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('id', session.user.id)
+            .single();
+          if (error) {
+            console.error('Error fetching username:', error.message);
+          } else {
+            setUsername(data.username);
+          }
+        };
+        fetchUsername();
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -30,6 +59,7 @@ function App() {
     const { error } = await supabase.auth.signOut();
     if (error) console.error('Error logging out:', error.message);
     setSession(null);
+    setUsername('');
   };
 
   return (
@@ -45,7 +75,7 @@ function App() {
               </nav>
             </div>
             <div className="user-info">
-              <Link to="/profile" className="user-email">{session.user.email}</Link>
+              <Link to="/profile" className="user-username">{username}</Link>
               <button onClick={handleLogout}>Logout</button>
             </div>
           </header>
@@ -59,7 +89,8 @@ function App() {
             </Routes>
           </main>
           <footer>
-            <p>&copy; 2023 Tobi. All rights reserved.</p>
+            <SocialMedia />
+            <p>&copy; 2025 Tobi. All rights reserved.</p>
           </footer>
         </>
       ) : (
